@@ -1,10 +1,7 @@
-name: Sync Upstream
-
 on:
   schedule:
-    # 每天 UTC 时间 00:00 自动同步
-    - cron: '0 0 * * *'
-  workflow_dispatch:  # 支持手动触发
+    - cron: '0 0 * * *'  # 每天 UTC 00:00 自动同步
+  workflow_dispatch:     # 支持手动触发
 
 jobs:
   sync:
@@ -13,20 +10,26 @@ jobs:
       - name: Checkout 当前仓库
         uses: actions/checkout@v4
         with:
-          token: ${{ secrets.UPSTREAM_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}  # 使用默认令牌确保推送权限
+          fetch-depth: 0  # 获取完整提交历史避免合并问题
 
       - name: 添加上游仓库
-        run: |
-          git remote add upstream https://github.com/kimwang1978/collect-tv-txt.git
+        run: git remote add upstream https://github.com/kimwang1978/collect-tv-txt.git
 
-      - name: 拉取上游仓库更新
-        run: |
-          git fetch upstream
+      - name: 拉取上游更新
+        run: git fetch upstream
 
-      - name: 合并到当前分支（如 main）
+      - name: 合并更新到 main 分支
         run: |
-          git config --global user.name "GitHub Actions"
+          git config --global user.name "GitHub Actions Sync"
           git config --global user.email "actions@github.com"
           git checkout main
-          git merge upstream/main
+          
+          # 仅允许快进合并，避免冲突
+          if ! git merge --ff-only upstream/main; then
+            echo "::error::无法快进合并，请手动处理冲突。"
+            exit 1
+          fi
+
+          # 推送更新到 origin
           git push origin main
