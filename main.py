@@ -54,6 +54,7 @@ ys_lines = [] #CCTV
 ws_lines = [] #卫视频道
 ty_lines = [] #体育频道
 tyss_lines = [] #体育赛事
+mgss_lines = [] #咪咕赛事
 dy_lines = []
 dsj_lines = []
 gat_lines = [] #港澳台
@@ -215,7 +216,8 @@ def clean_url(url):
 # 添加channel_name前剔除部分特定字符
 removal_list = ["_电信", "电信", "高清", "频道", "（HD）", "-HD","英陆","_ITV","(北美)","(HK)","AKtv","「IPV4」","「IPV6」",
                 "频陆","备陆","壹陆","贰陆","叁陆","肆陆","伍陆","陆陆","柒陆", "频晴","频粤","[超清]","高清","超清","标清","斯特",
-                "粤陆", "国陆","肆柒","频英","频特","频国","频壹","频贰","肆贰","频测","咪咕","闽特","高特","频高","频标","汝阳"]
+                "粤陆", "国陆","肆柒","频英","频特","频国","频壹","频贰","肆贰","频测","咪咕","闽特","高特","频高","频标","汝阳",
+                "4Gtv","频效","国标","粤标","频推","频流","粤高","频限"]
 def clean_channel_name(channel_name, removal_list):
     for item in removal_list:
         channel_name = channel_name.replace(item, "")
@@ -251,6 +253,8 @@ def process_channel_line(line):
                 ty_lines.append(process_name_string(line.strip()))
             elif any(tyss_dictionary in channel_name for tyss_dictionary in tyss_dictionary) and check_url_existence(tyss_lines, channel_address):  #体育赛事（2025新增）
                 tyss_lines.append(process_name_string(line.strip()))
+            elif any(mgss_dictionary in channel_name for mgss_dictionary in mgss_dictionary) and check_url_existence(mgss_lines, channel_address):  #咪咕赛事（2025新增）
+                mgss_lines.append(process_name_string(line.strip()))
             elif channel_name in dy_dictionary and check_url_existence(dy_lines, channel_address):  #电影频道
                 dy_lines.append(process_name_string(line.strip()))
             elif channel_name in dsj_dictionary and check_url_existence(dsj_lines, channel_address):  #电视剧频道
@@ -420,6 +424,7 @@ sh_dictionary=read_txt_to_array('主频道/shanghai.txt') #过滤+排序
 ws_dictionary=read_txt_to_array('主频道/卫视频道.txt') #过滤+排序
 ty_dictionary=read_txt_to_array('主频道/体育频道.txt') #过滤
 tyss_dictionary=read_txt_to_array('主频道/体育赛事.txt') #过滤
+mgss_dictionary=read_txt_to_array('主频道/咪咕赛事.txt') #过滤
 dy_dictionary=read_txt_to_array('主频道/电影.txt') #过滤
 dsj_dictionary=read_txt_to_array('主频道/电视剧.txt') #过滤
 gat_dictionary=read_txt_to_array('主频道/港澳台.txt') #过滤
@@ -776,9 +781,13 @@ def custom_tyss_sort(lines):
 
     return digit_prefix_sorted + others_sorted
 
+# 过滤txt中体育赛事
+keywords_to_exclude_tiyu_txt = ["玉玉软件", "榴芒电视","公众号","麻豆","「回看」"]
+normalized_tyss_lines = filter_lines(normalized_tyss_lines, keywords_to_exclude_tiyu_txt)
 normalized_tyss_lines = custom_tyss_sort(set(normalized_tyss_lines))
 
-keywords_to_exclude_tiyu = ["玉玉软件", "榴芒电视","公众号","咪视通"]
+# 过滤tiyu页面中体育赛事
+keywords_to_exclude_tiyu = ["玉玉软件", "榴芒电视","公众号","咪视通","麻豆","「回看」"]
 filtered_tyss_lines = filter_lines(normalized_tyss_lines, keywords_to_exclude_tiyu)
 generate_playlist_html(filtered_tyss_lines, 'tiyu.html')
 
@@ -828,7 +837,8 @@ all_lines_simple =  ["更新时间,#genre#"] +[version] +[about] +[daily_mtv]+re
              ["💓台湾台📶,#genre#"] + read_txt_to_array('专区/♪台湾台.txt') + ['\n'] + \
              ["💓咪咕直播,#genre#"] + read_txt_to_array('专区/♪咪咕直播.txt') + ['\n'] + \
              ["🏈体育赛事🏆️,#genre#"] + normalized_tyss_lines + ['\n'] + \
-             ["⚽️SPORTS🏆️,#genre#"] + read_txt_to_array('专区/♪sports.txt') + ['\n'] + \
+             ["🏈咪咕赛事🏆️,#genre#"] + mgss_lines + ['\n'] + \
+             ["⚽️SPORTS,#genre#"] + read_txt_to_array('专区/♪sports.txt') + ['\n'] + \
              ["🎞️电影点播,#genre#"] + read_txt_to_array('专区/♪电影点播.txt') + ['\n'] + \
              ["💓电视剧🔁,#genre#"] + read_txt_to_array('专区/♪电视剧.txt') + ['\n'] + \
              ["💓优质个源,#genre#"] + read_txt_to_array('专区/♪优质源.txt') + ['\n'] + \
@@ -858,7 +868,8 @@ all_lines =  ["更新时间,#genre#"] +[version]  +[about] +[daily_mtv]+read_txt
              ["💓港澳台📶,#genre#"] + read_txt_to_array('专区/♪港澳台.txt') + ['\n'] + \
              ["💓台湾台📶,#genre#"] + read_txt_to_array('专区/♪台湾台.txt') + ['\n'] + \
              ["💓咪咕直播,#genre#"] + read_txt_to_array('专区/♪咪咕直播.txt') + ['\n'] + \
-             ["🏈体育赛事,#genre#"] + normalized_tyss_lines + ['\n'] + \
+             ["🏈体育赛事🏆️,#genre#"] + normalized_tyss_lines + ['\n'] + \
+             ["🏈咪咕赛事🏆️,#genre#"] + mgss_lines + ['\n'] + \
              ["⚽️SPORTS,#genre#"] + read_txt_to_array('专区/♪sports.txt') + ['\n'] + \
              ["🎞️电影点播,#genre#"] + read_txt_to_array('专区/♪电影点播.txt') + ['\n'] + \
              ["💓电视剧🔁,#genre#"] + read_txt_to_array('专区/♪电视剧.txt') + ['\n'] + \
