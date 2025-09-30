@@ -15,6 +15,7 @@ https://raw.githubusercontent.com/frxz751113/IPTVzb1/refs/heads/main/%E7%BD%91%E
 --https://raw.githubusercontent.com/Cx4x/6/refs/heads/main/mg2.m3u
 https://raw.githubusercontent.com/Cx4x/6/refs/heads/main/mgg.m3u
 https://raw.githubusercontent.com/Cx4x/6/refs/heads/main/txx.m3u
+https://raw.githubusercontent.com/Cx4x/6/refs/heads/main/iqy.m3u
 --https://www.iyouhun.com/tv/myIPTV/ipv4.m3u
 https://c.cxics.com/ds/%E7%A7%92%E6%92%AD.txt
 --https://migu.188766.xyz/?migutoken=a7888d7433ad19fb29ed919e556bcead&id=CCTV14&pp=1
